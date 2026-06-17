@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard | TDS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 glass-card border-none flex flex-col hidden md:flex shrink-0 sidebar-animate m-4 mr-0 rounded-2xl overflow-hidden z-50">
+        <div class="p-6 border-b border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="users" class="text-slate-900 dark:text-white w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TDS Portal</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scrollbar px-3">
+            <a href="javascript:void(0)" onclick="showSection('dashboardSection')" id="link-dashboardSection" class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 rounded-xl">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('employeeListSection')" id="link-employeeListSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="users" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Employee List
+            </a>
+            <a href="signup.html" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="user-plus" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Add Employee
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('payrollSection')" id="link-payrollSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="wallet" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Payroll Processing
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('leaveSection')" id="link-leaveSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="calendar" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Leave Requests
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <button onclick="logout()" class="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200 group">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="h-20 flex items-center justify-between px-8 sticky top-0 z-40">
+            <div class="glass-card w-full h-16 flex items-center justify-between px-6 mt-4">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">HR Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white relative transition-colors bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#0f172a]"></span>
+                        </button>
+                        
+                        <!-- Theme Toggle Button -->
+                        <button onclick="TDS_PORTAL.ui.toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white relative transition-colors bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                        </button>
+
+                        <div class="h-8 w-px bg-black/10 dark:bg-white/10"></div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <button id="profileBtn" onclick="TDS_PORTAL.session.toggleProfileDropdown()" class="flex items-center space-x-3 p-1 rounded-xl hover:bg-black/10 dark:bg-white/10 transition-all duration-200 group border border-transparent hover:border-black/10 dark:border-white/10">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-slate-900 dark:text-white font-bold text-sm shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                                    HR
+                                </div>
+                                <div class="text-left hidden sm:block pr-2">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-none" id="userName">HR Manager</p>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Human Resources</p>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:text-slate-900 dark:text-white transition-colors mr-1"></i>
+                            </button>
+
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden z-[100] animate-fade-in">
+                                <div class="p-2">
+                                    <div class="px-4 py-3 border-b border-black/10 dark:border-white/10 mb-2">
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Signed in as</p>
+                                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate" id="userEmail">hr@tdsportal.com</p>
+                                    </div>
+                                    <button onclick="TDS_PORTAL.ui.showMyProfile()" class="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-black/10 dark:bg-white/10 rounded-xl transition-colors group">
+                                        <i data-lucide="user" class="w-4 h-4 mr-3 text-slate-500 group-hover:text-indigo-500 transition-colors"></i> My Profile
+                                    </button>
+                                    <button onclick="TDS_PORTAL.ui.showToast('Please contact administrator to change password.', 'info')" class="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-black/10 dark:bg-white/10 rounded-xl transition-colors group">
+                                        <i data-lucide="key" class="w-4 h-4 mr-3 text-slate-500 group-hover:text-indigo-500 transition-colors"></i> Change Password
+                                    </button>
+                                    <div class="h-px bg-black/10 dark:bg-white/10 my-2 mx-2"></div>
+                                    <button onclick="logout()" class="flex items-center w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors group">
+                                        <i data-lucide="log-out" class="w-4 h-4 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <!-- Dashboard Overview Section -->
+            <div id="dashboardSection" class="section-content animate-fade-in">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card p-6 hover:border-indigo-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-slate-900 dark:text-white transition-all duration-300 shadow-lg shadow-indigo-500/10">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full">+8% ↑</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Employees</h3>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1" id="statEmployees">0</p>
+                    </div>
+
+                    <div class="glass-card p-6 hover:border-blue-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-slate-900 dark:text-white transition-all duration-300 shadow-lg shadow-blue-500/10">
+                                <i data-lucide="user-plus" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-blue-400 text-xs font-bold bg-blue-500/10 px-2 py-1 rounded-full">Active</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium">New Joinees</h3>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">8</p>
+                    </div>
+
+                    <div class="glass-card p-6 hover:border-amber-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-slate-900 dark:text-white transition-all duration-300 shadow-lg shadow-amber-500/10">
+                                <i data-lucide="clock" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-amber-500 text-xs font-bold bg-amber-500/10 px-2 py-1 rounded-full">12 Pending</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium">Pending TDS</h3>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">12</p>
+                    </div>
+
+                    <div class="glass-card p-6 hover:border-emerald-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-slate-900 dark:text-white transition-all duration-300 shadow-lg shadow-emerald-500/10">
+                                <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full">Feb 2026</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium">Payroll Status</h3>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">Processing</p>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <!-- Quick Stats/Chart -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="glass-card p-8 relative overflow-hidden group hover-lift">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-indigo-500/10 transition-colors duration-500"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-8">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">HR Performance Overview</h3>
+                                        <p class="text-slate-500 dark:text-slate-400 text-sm">System compliance and employee engagement</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full">Monthly</span>
+                                    </div>
+                                </div>
+                                <div class="h-[300px]">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Info -->
+                    <div class="space-y-8">
+                        <!-- Chart Card -->
+                        <div class="glass-card p-8 relative overflow-hidden group hover-lift">
+                            <div class="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-blue-500/10 transition-colors duration-500"></div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-6 flex items-center text-sm relative z-10">
+                                <i data-lucide="pie-chart" class="w-4 h-4 mr-2 text-blue-500"></i>
+                                TDS Compliance
+                            </h3>
+                            <div class="h-[200px] relative z-10">
+                                <canvas id="hrChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Birthdays Card -->
+                        <div class="glass-card p-8 relative overflow-hidden group hover-lift">
+                            <div class="absolute top-0 right-0 w-48 h-48 bg-pink-500/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-pink-500/10 transition-colors duration-500"></div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-4 flex items-center text-sm relative z-10">
+                                <i data-lucide="cake" class="w-4 h-4 mr-2 text-pink-500"></i>
+                                Upcoming Birthdays
+                            </h3>
+                            <div class="space-y-4 relative z-10">
+                                <div class="flex items-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700/50 hover:border-pink-500/30 transition-colors group/item">
+                                    <div class="w-10 h-10 bg-pink-500/10 rounded-lg flex items-center justify-center text-pink-500 mr-3 group-hover/item:scale-110 transition-transform">
+                                        JD
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white">John Doe</p>
+                                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Tomorrow, Feb 13</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee List Section -->
+            <div id="employeeListSection" class="section-content hidden animate-fade-in">
+                <div class="glass-card overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-xl flex items-center">
+                                <i data-lucide="users" class="w-6 h-6 mr-3 text-indigo-500"></i>
+                                Employee Directory
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage and view all registered employees</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="text" placeholder="Search..." class="bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 w-48 text-slate-900 dark:text-white outline-none">
+                            </div>
+                            <a href="signup.html" class="btn-indigo py-2 px-6">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Add New
+                            </a>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">
+                                <tr>
+                                    <th class="px-8 py-5 font-bold">Employee</th>
+                                    <th class="px-8 py-5 font-bold">Email Address</th>
+                                    <th class="px-8 py-5 font-bold">Status</th>
+                                    <th class="px-8 py-5 font-bold">Joined Date</th>
+                                    <th class="px-8 py-5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody" class="divide-y divide-slate-800">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payroll Section -->
+            <div id="payrollSection" class="section-content hidden animate-fade-in">
+                <div class="glass-card p-12 text-center">
+                    <div class="w-20 h-20 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 mx-auto mb-6">
+                        <i data-lucide="wallet" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Payroll Processing</h3>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-md mx-auto">Generate payslips, manage salary structures, and process monthly payroll for all employees.</p>
+                    <button class="mt-8 btn-indigo px-8 py-3">
+                        Start February Payroll
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leave Requests Section -->
+            <div id="leaveSection" class="section-content hidden animate-fade-in">
+                <div class="glass-card p-12 text-center">
+                    <div class="w-20 h-20 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-6">
+                        <i data-lucide="calendar" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Leave Management</h3>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-md mx-auto">Review and approve employee leave requests and track attendance records.</p>
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-300 dark:border-slate-700">
+                            <p class="text-2xl font-bold text-slate-900 dark:text-white">12</p>
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Pending</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-300 dark:border-slate-700">
+                            <p class="text-2xl font-bold text-slate-900 dark:text-white">45</p>
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Approved</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-300 dark:border-slate-700">
+                            <p class="text-2xl font-bold text-slate-900 dark:text-white">3</p>
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Rejected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mt-8 py-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-500 text-sm">
+                <p>© 2026 Employee TDS Management System</p>
+                <div class="mt-2 flex items-center justify-center space-x-4">
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Privacy Policy</a>
+                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Terms of Service</a>
+                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Help Center</a>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // 🔐 Protect Dashboard - Check HR Access
+        const user = TDS_PORTAL.session.getUser();
+        if (!user || user.role !== "HR") {
+            window.location.href = "index.html";
+        }
+
+        // ⏳ Auto logout after 10 minutes
+        setTimeout(() => {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "index.html";
+        }, 10 * 60 * 1000);
+
+        // 🔐 Secure Session Validation - Verify localStorage matches database
+        async function validateSession() {
+            const sessionUser = TDS_PORTAL.session.getUser();
+            if (!sessionUser) return;
+            const realUsers = await TDS_PORTAL.db.getUsers();
+            const verifiedUser = realUsers.find(u => u.email === sessionUser.email);
+
+            if (!verifiedUser || verifiedUser.role !== sessionUser.role || verifiedUser.role !== "HR") {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "index.html";
+            }
+        }
+        validateSession();
+
+        lucide.createIcons();
+
+        // Check Auth
+        const loggedInUser = TDS_PORTAL.session.checkAuth("HR");
+        if (loggedInUser) {
+            document.getElementById("userName").innerText = loggedInUser.name;
+            const userEmailEl = document.getElementById("userEmail");
+            if (userEmailEl) userEmailEl.innerText = loggedInUser.email;
+        }
+
+        // 🟢 Section Switching Logic
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            // Update sidebar links
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+                link.classList.remove('text-slate-900 dark:text-white');
+                link.classList.add('text-slate-500 dark:text-slate-400');
+            });
+
+            // Set active link
+            const activeLink = document.getElementById(`link-${sectionId}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+                activeLink.classList.remove('text-slate-500 dark:text-slate-400');
+                activeLink.classList.add('text-slate-900 dark:text-white');
+            }
+
+            // Update Header Title
+            const titles = {
+                'dashboardSection': 'HR Dashboard',
+                'employeeListSection': 'Employee Directory',
+                'payrollSection': 'Payroll Processing',
+                'leaveSection': 'Leave Management'
+            };
+            const headerTitle = document.querySelector('header h2');
+            if (headerTitle && titles[sectionId]) {
+                headerTitle.innerText = titles[sectionId];
+            }
+        }
+
+        // Initialize HR Dashboard
+        async function initHRDashboard() {
+            const stats = await TDS_PORTAL.db.getStats();
+            document.getElementById('statEmployees').innerText = stats.totalEmployees;
+            
+            const users = await TDS_PORTAL.db.getUsers();
+            const employees = users.filter(u => u.role === "EMPLOYEE");
+            const tbody = document.getElementById('employeeTableBody');
+            
+            if (tbody) {
+                tbody.innerHTML = employees.length ? employees.map(emp => `
+                    <tr class="hover:bg-slate-100 dark:bg-slate-800/30 transition-all duration-200 group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold mr-4 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                                    ${emp.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div class="text-slate-900 dark:text-white font-medium">${emp.name}</div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 dark:text-slate-400">${emp.email}</td>
+                        <td class="px-8 py-5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${emp.status === 'Inactive' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'} border uppercase tracking-wider">
+                                ${emp.status || 'Active'}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 text-sm font-medium">${emp.createdAt || 'Feb 12, 2026'}</td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="TDS_PORTAL.db.viewUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-500/20 text-slate-500 dark:text-slate-400 hover:text-indigo-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-indigo-500/30" title="View Details">
+                                    <i data-lucide="eye" class="w-4.5 h-4.5"></i>
+                                </button>
+                                <button onclick="TDS_PORTAL.db.editUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-500/20 text-slate-500 dark:text-slate-400 hover:text-indigo-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-indigo-500/30" title="Edit User">
+                                    <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
+                                </button>
+                                <button onclick="TDS_PORTAL.db.deleteUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-red-500/20 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-red-500/30" title="Delete User">
+                                    <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('') : `
+                    <tr>
+                        <td colspan="5" class="px-8 py-12 text-center text-slate-500">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="users" class="w-12 h-12 mb-4 opacity-20"></i>
+                                <p>No employees found in the directory.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Compliance Rate',
+                        data: [92, 95, 94, 98, 97, 99],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#0f172a',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // Compliance Pie Chart
+            const hrCtx = document.getElementById('hrChart').getContext('2d');
+            new Chart(hrCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Compliant', 'Pending', 'Action Required'],
+                    datasets: [{
+                        data: [85, 10, 5],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' }, padding: 20 }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initHRDashboard();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

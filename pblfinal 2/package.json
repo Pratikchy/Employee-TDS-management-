@@ -1,0 +1,13 @@
+{
+  "name": "tds-portal",
+  "version": "1.0.0",
+  "description": "TDS Management System",
+  "scripts": {
+    "start": "npm run start:backend",
+    "start:backend": "cd tds-backend && node server.js",
+    "seed:admin": "cd tds-backend && node seedAdmin.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
